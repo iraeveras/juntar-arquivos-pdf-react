@@ -7,6 +7,8 @@ import { HTML5Backend } from 'react-dnd-html5-backend';
 import FileCard from './components/file-card';
 import ProgressBar from './components/progress-bar';
 
+import "./App.css";
+
 function App() {
 
   const [pdfFiles, setPdfFiles] = useState([]);
