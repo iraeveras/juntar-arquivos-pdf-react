@@ -1,27 +1,78 @@
 .container {
-  width: 80%;
+  display: flex;
+  gap: 15px;
+  padding: 10px 15px;
+  width: 100%;
+  /* max-width: 1440px; */
+  height: 100vh;
   margin: 0 auto;
   text-align: center;
+  border: 1px solid;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-height: 100%;
 }
 
 .dropzone {
   border: 2px dashed #ccc;
   padding: 20px;
   cursor: pointer;
+  height: 100%;
 }
 
 .file-list {
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 10px;
-  margin-top: 20px;
+  margin-top: 37px;
+  border: 1px solid;
+  overflow-x: hidden;
+  overflow-y: scroll;
+  padding: 0 20px;
+  width: 250px;
+}
+
+.file-list h3 {
+  width: 100%;
+  font-size: 15px;
 }
 
 .file-card {
+  word-break: break-all;
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 5px;
   cursor: move;
+  width: 100%;
+  max-width: 150px;
+  height: 200px;
+}
+
+.btn-juntar {
+  margin: 0 auto;
+  padding: 8px 100px;
+  margin-top: 20px;
+  background-color: #4caf50;
+  border: none;
+  border-radius: 4px;
+  outline: none;
+  color: #fff;
+
+}
+
+.download-pdf-link {
+  border: 1px solid;
+  margin: 0 auto;
+  padding: 5px 50px;
+  margin-top: 20px;
+  border: 1px solid;
+  border-radius: 4px;
+  text-decoration: none;
 }
 
 .progress-bar {
@@ -34,3 +85,4 @@
   height: 100%;
   background-color: #4caf50;
 }
+

@@ -64,6 +64,7 @@ function App() {
   return (
     <DndProvider backend={HTML5Backend}>
       <div className='container'>
+        <div className='content'>
         <h1>Combinar PDF</h1>
 
         {/* Área de Drag-and-Drop */}
@@ -72,8 +73,26 @@ function App() {
           <p>Arraste e solte ou clique para selecionar arquivos PDF</p>
         </div>
 
+        
+
+        {/* Barra de Progresso */}
+        {isMerging && <ProgressBar progress={progress} />}
+
+        {/* Botão para juntar PDFs */}
+        <button className='btn-juntar' onClick={mergePdfs} disabled={pdfFiles.length === 0 || isMerging}>
+          Juntar PDFs
+        </button>
+
+        {/* Botão de Download adicional */}
+        {mergedPdfUrl && (
+          <a className='download-pdf-link' href={mergedPdfUrl} download="combined.pdf">
+            Download PDF
+          </a>
+        )}
+        </div>
         {/* Mostrar os arquivos PDFs em cards */}
         <div className='file-list'>
+          <h3>Arquivos selecionados</h3>
           {pdfFiles.map((file, index) => (
             <FileCard
               key={file.id}
@@ -83,21 +102,6 @@ function App() {
             />
           ))}
         </div>
-
-        {/* Barra de Progresso */}
-        {isMerging && <ProgressBar progress={progress} />}
-
-        {/* Botão para juntar PDFs */}
-        <button onClick={mergePdfs} disabled={pdfFiles.length === 0 || isMerging}>
-          Combine PDFs
-        </button>
-
-        {/* Botão de Download adicional */}
-        {mergedPdfUrl && (
-          <a href={mergedPdfUrl} download="combined.pdf">
-            Download Combined PDF
-          </a>
-        )}
       </div>
     </DndProvider>
   )
