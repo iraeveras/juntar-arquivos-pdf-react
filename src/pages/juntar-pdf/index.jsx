@@ -4,9 +4,11 @@ import { saveAs } from 'file-saver';
 import { useDropzone } from "react-dropzone";
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
-import FileCard from '../../components/file-card';
+import FileCard from "../../components/file-card"
 import ProgressBar from '../../components/progress-bar';
-
+import Container from '../../components/container';
+import Content from '../../components/content';
+import Title from '../../components/title';
 import "./index.css";
 
 const Juntarpdf = () => {
@@ -15,10 +17,11 @@ const Juntarpdf = () => {
     const [isMerging, setIsMerging] = useState(false);
     const [progress, setProgress] = useState(0);
     const [mergedPdfUrl, setMergedPdfUrl] = useState(null);
+    const [isDragging, setIsDragging] = useState(false); // Estado para verificar se está arrastando
 
     // Função para lidar com o upload (drag-and-dreop ou clicar)
     const { getRootProps, getInputProps } = useDropzone({
-        accept: ".pdf",
+        accept: { 'application/pdf': ['.pdf'] },
         onDrop: (acceptedFiles) => {
             const newFiles = acceptedFiles.map((file, index) => ({
                 file,
@@ -27,6 +30,10 @@ const Juntarpdf = () => {
             }));
             setPdfFiles((prev) => [...prev, ...newFiles]);
         },
+
+        onDragEnter: () => setIsDragging(true), // Definir estado ao entrar na área de drop
+        onDragLeave: () => setIsDragging(false), // Definir estado ao sair da área de drop
+        onDropAccepted: () => setIsDragging(false), // Definir estado após drop
     });
 
     // Função para ordenar os arquivos no drag-and-drop
@@ -59,13 +66,16 @@ const Juntarpdf = () => {
         setMergedPdfUrl(downloadUrl);
         saveAs(blob, "combined.pdf");
         setIsMerging(false);
+        setPdfFiles([]);
+        setProgress(0);
+        setMergedPdfUrl(null);
     };
 
     return (
         <DndProvider backend={HTML5Backend}>
-            <div className='container'>
-                <div className='content'>
-                    <h1>Juntar PDF</h1>
+            <Container>
+                <Content>
+                    <Title title="Juntar PDF" />
 
                     {/* Área de Drag-and-Drop */}
                     <div {...getRootProps({ className: "dropzone" })}>
@@ -89,8 +99,7 @@ const Juntarpdf = () => {
                             </a>
                         )}
                     </div>
-
-                </div>
+                </Content>
                 {/* Mostrar os arquivos PDFs em cards */}
                 <div className='file-list'>
                     <h3 className='file-list-title'>Arquivos selecionados</h3>
@@ -105,7 +114,7 @@ const Juntarpdf = () => {
                         ))}
                     </div>
                 </div>
-            </div>
+            </Container>
         </DndProvider>
     )
 }

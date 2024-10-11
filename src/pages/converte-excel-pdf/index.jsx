@@ -1,92 +1,137 @@
 import React, { useState } from "react";
-import { read, utils } from "xlsx";
-import { jsPDF } from "jspdf";
+import * as XLSX from "xlsx";
+import jsPDF from "jspdf";
 import { saveAs } from "file-saver";
+import Container from "../../components/container";
+import Content from "../../components/content";
+import Title from "../../components/title";
 
 const Converteexcelpdf = () => {
-    const [file, setFile] = useState(null)
-    const [excelPreview, setExcelPreview] = useState(null);
-    const [progress, setProgress] = useState(0);
-    const [converted, setConverted] = useState(false);
+    const [files, setFiles] = useState([]); // Armazena os arquivos Excel carregados
+    const [progress, setProgress] = useState(0); // Controle da barra de progresso
+    const [converting, setConverting] = useState(false); // Indica se está convertendo
 
-    // Função que lida com o upload do arquivo
+    // Função chamada quando o arquivo é arrastado ou anexado
     const handleFileChange = (e) => {
-        const selectedFile = e.target.files[0];
-        console.log(selectedFile);
-        
-        if (selectedFile && selectedFile.type.includes("excel")) {
-            setFile(selectedFile);
-            setExcelPreview(URL.createObjectURL(selectedFile));
-        }
+        const selectedFiles = Array.from(e.target.files); // Pega arquivos carregados
+        setFiles(selectedFiles);
     };
 
-    // Função que processa o arquivo Excel e converte para PDF
-    const convertToPDF = () => {
-        if (!file) return;
+    // Função que converte o Excel para PDF
+    const handleConvertToPDF = () => {
+        if (files.length === 0) return;
 
-        const reader = new FileReader();
-        console.log(reader);
-        
-        reader.onload = (e) => {
-            const data = new Uint8Array(e.target.result);
-            const workbook = read(data, { type: "array" });
-            const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-            const jsonData = utils.sheet_to_json(worksheet, {header: 1});
+        setConverting(true);
+        setProgress(0); // Reinicia a barra de progresso
 
-            const doc = new jsPDF();
-            jsonData.forEach((row, index) => {
-                doc.text(row.join(" "), 10, 10 + index * 10); // Adiciona o conteúdo Excel no PDF
-            });
+        const doc = new jsPDF(); // Cria um novo PDF
 
-            setProgress(100); // Atualiza a barra de progresso para 100%
-            setConverted(true);
+        files.forEach((file, index) => {
+            const reader = new FileReader();
 
-            const pdfBlob = doc.output("blob");
-            saveAs(pdfBlob, "converted_file.pdf"); // Faz o download do arquivo automaticamente
-        };
+            reader.onload = (event) => {
+                const data = new Uint8Array(event.target.result);
+                const workbook = XLSX.read(data, { type: "array" }); // Lê o Excel
 
-        reader.readAsArrayBuffer(file);
-        setProgress(50); // Atualiza a barra de progresso para 50% durante o processamento
+                workbook.SheetNames.forEach((sheetName) => {
+                    const worksheet = workbook.Sheets[sheetName];
+                    const sheetData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+                    // Adiciona os dados do Excel ao PDF
+                    sheetData.forEach((row, rowIndex) => {
+                        doc.text(row.join(" "), 10, 10 + rowIndex * 10);
+                    });
+
+                    // Cria nova página se houver mais de um arquivo
+                    if (index < files.length - 1) {
+                        doc.addPage();
+                    }
+                });
+
+                // Atualiza a barra de progresso conforme converte
+                setProgress((prev) => Math.min(prev + (100 / files.length), 100));
+
+                // Quando chegar ao último arquivo, faz o download do PDF
+                if (index === files.length - 1) {
+                    const pdfBlob = doc.output("blob");
+                    saveAs(pdfBlob, "converted.pdf");
+                    setConverting(false); // Conversão concluída
+                }
+            };
+
+            reader.readAsArrayBuffer(file);
+        });
     };
 
-    // Função para baixar o PDF convertido manualmente
-    const downloadPDF = () => {
-        if (!file) {
-            alert("Por favor, envie um arquivo primeiro.");
-        } else if (!converted) {
-            alert("Por favor, converta o arquivo primeiro.")
-        }
-    };
+    return (
+        <Container>
+            <Content>
+                <Title title="Conversor de Excel para PDF" />
 
-    return(
-        <div>
-            <h1>Conversor de Excel para PDF</h1>
-            <div className="upload-section" style={{border: "2px dashed #ccc", padding: "20px", width: "300px"}}>
-                <input type="file" accept=".xlsx, .xls" onChange={handleFileChange} style={{display: "none"}} id="fileInput" />
-                <label htmlFor="fileInput" style={{cursor: "pointer"}}>
-                    Arraste ou clique para anexar um arquivo Excel
-                </label>
-            </div>
-
-            {excelPreview && (
-                <div className="card" style={{marginTop: "20px"}}>
-                    <h3>Arquivo Anexado:</h3>
-                    <img src={excelPreview} alt="Excel preview" style={{width: "100px", height: "100px"}}/>
+                {/* Área de Drag-and-Drop ou Clique para Carregar Arquivo */}
+                <div
+                    style={{
+                        border: "2px dashed #ccc",
+                        padding: "20px",
+                        textAlign: "center",
+                        marginBottom: "20px",
+                    }}
+                    onDrop={(e) => {
+                        e.preventDefault();
+                        handleFileChange(e);
+                    }}
+                    onDragOver={(e) => e.preventDefault()}
+                >
+                    <input
+                        type="file"
+                        accept=".xlsx, .xls"
+                        multiple
+                        onChange={handleFileChange}
+                        style={{ display: "none" }}
+                        id="fileInput"
+                    />
+                    <label htmlFor="fileInput" style={{ cursor: "pointer" }}>
+                        Arraste ou clique aqui para carregar arquivos Excel
+                    </label>
                 </div>
-            )}
 
-            <button onClick={convertToPDF} style={{marginTop: "20px"}}>
-                Converter para PDF
-            </button>
-            <div style={{marginTop: "20px", width: "300px", backgroundColor: "#f3f3f3", height: "20px", position: "relative"}}>
-                <div style={{width: `${progress}%`, height: "100%", backgroundColor: "#4caf50", transition: "width 0.5s"}}/>
-            </div>
-            {converted && (
-                <div style={{marginTop: "20px"}}>
-                    <button onClick={downloadPDF}>Baixar PDF</button>
+                {/* Cards de Pré-Visualização */}
+                <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+                    {files.map((file, index) => (
+                        <div key={index} style={{ border: "1px solid #ccc", padding: "10px" }}>
+                            <p>{file.name}</p>
+                            <p>Tamanho: {(file.size / 1024).toFixed(2)} KB</p>
+                        </div>
+                    ))}
                 </div>
-            )}
-        </div>        
+
+                {/* Botão para Converter */}
+                <button
+                    onClick={handleConvertToPDF}
+                    disabled={converting}
+                    style={{
+                        marginTop: "20px",
+                        padding: "10px 20px",
+                        backgroundColor: converting ? "#ccc" : "#28a745",
+                        color: "#fff",
+                        border: "none",
+                        cursor: converting ? "not-allowed" : "pointer",
+                    }}
+                >
+                    {converting ? "Convertendo..." : "Converter para PDF"}
+                </button>
+
+                {/* Barra de Progresso */}
+                {converting && (
+                    <div style={{ marginTop: "20px" }}>
+                        <progress value={progress} max="100" style={{ width: "100%" }}></progress>
+                        <p>{Math.round(progress)}% Concluído</p>
+                    </div>
+                )}
+
+
+            </Content>
+        </Container>
     );
 }
 
