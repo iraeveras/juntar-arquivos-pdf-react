@@ -1,4 +1,7 @@
 .file-card {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     word-break: break-all;
     /* padding: 10px; */
     border: 1px solid #ccc;
@@ -13,5 +16,9 @@
 .file-card img {
     max-width: 100%;
     height: auto;
-    margin-bottom: 10px;
+    /* margin-bottom: 10px; */
+}
+
+.loading-preview {
+    font-size: 10px;
 }

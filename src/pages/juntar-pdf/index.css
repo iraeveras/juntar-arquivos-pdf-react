@@ -8,7 +8,7 @@
     max-height: calc(100% - 96px);
     margin: 0 auto;
     text-align: center;
-    border: 1px solid;
+    /* border: 1px solid; */
 }
 
 .content {
@@ -18,7 +18,6 @@
     align-items: center;
     width: 100%;
     height: 100%;
-
 }
 
 .dropzone {
@@ -46,18 +45,25 @@
     flex-direction: column;
     align-items: center;
     gap: 10px;
-    margin-top: 43px;
-    border: 1px solid;
-    overflow: hidden;
-
+    border: 1px solid #ccc;
+    border-radius: 4px;
     width: 200px;
-    height: calc(100% - 93px);
+    height: 100%;
+    overflow: hidden;
+    /* margin-top: 43px; */
+    /* max-height: calc(100% - 93px); */
     /* max-height: 684px; */
 }
 
-.file-list h3 {
+.file-list .file-list-title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-block: 5px;
+    background-color: #ccc;
     width: 100%;
-    font-size: 15px;
+    font-size: 13px;
+    font-weight: 600;
 }
 
 .content-arquivos-selecionados {
@@ -68,11 +74,9 @@
     width: 100%;
     overflow-y: auto;
     overflow-x: hidden;
-    padding: 10px 20px;
+    padding: 0px 20px 10px;
     height: 100%;
 }
-
-
 
 .btn-juntar {
     margin: 0 auto;

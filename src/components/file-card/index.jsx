@@ -19,34 +19,37 @@ const FileCard = ({ file, index, moveFile }) => {
         const generateThumbnail = async () => {
             const fileReader = new FileReader();
 
-            // Log para depuração - verificando o arquivo
-            console.log("Lendo arquivo: ", file.file);
-
             // Quando o FileReader terminar de ler o arquivo:
             fileReader.onload = async () => {
-                const pdfData = new Uint8Array(fileReader.result); // Converta o arquivo para bytes
-                const pdf = await pdfjsLib.getDocument({ data: pdfData }).promise; // Carregue o PDF
-                const page = await pdf.getPage(1); // carrega a primeira págima
+                try {
+                    const pdfData = new Uint8Array(fileReader.result); // Converta o arquivo para bytes
+                    const pdf = await pdfjsLib.getDocument({ data: pdfData }).promise; // Carregue o PDF
+                    const page = await pdf.getPage(1); // carrega a primeira págima
 
-                const viewport = page.getViewport({ scale: 0.5 }); // ajusta o tamanho
-                const canvas = canvasRef.current;
-                const context = canvas.getContext("2d");
+                    const viewport = page.getViewport({ scale: 0.5 }); // ajusta o tamanho
+                    const canvas = canvasRef.current;
+                    const context = canvas.getContext("2d");
 
-                // Ajuste o tamanho do canvas de acordo com a página
-                canvas.width = viewport.width;
-                canvas.height = viewport.height;
+                    // Ajuste o tamanho do canvas de acordo com a página
+                    canvas.width = viewport.width;
+                    canvas.height = viewport.height;
 
-                // Renderize a página no canvas
-                await page.render({ canvasContext: context, viewport }).promise;
+                    // Renderize a página no canvas
+                    await page.render({ canvasContext: context, viewport }).promise;
 
-                // Converta o canvas para uma imagem e armazene no estado
-                setThumbnail(canvas.toDataURL()); // converte para imagem
+                    // Converta o canvas para uma imagem e armazene no estado
+                    setThumbnail(canvas.toDataURL()); // converte para imagem
+                } catch (error) {
+                    console.error("Erro ao gerar a miniatura: ", error);                    
+                }                
             };
-
             fileReader.readAsArrayBuffer(file.file); // Leia o arquivo PDF como um ArrayBuffer
         };
-
-        generateThumbnail();
+        if (file && file.file) {
+            generateThumbnail();
+        } else {
+            console.warn("Nenhum arquivo encontrato para gerar a miniatura.")
+        }
     }, [file]);
 
     const [, ref] = useDrag({
@@ -69,7 +72,7 @@ const FileCard = ({ file, index, moveFile }) => {
             {thumbnail ? (
                 <img src={thumbnail} alt="PDF thumbnail" style={{ width: "100%" }} />
             ) : (
-                <p>Loading preview...</p>
+                <p className="loading-preview">Loading preview...</p>
             )}
             {/* <p>{file.name}</p> */}
             <canvas ref={canvasRef} style={{ display: "none" }}></canvas>

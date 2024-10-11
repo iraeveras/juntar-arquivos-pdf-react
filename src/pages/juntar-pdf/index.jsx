@@ -93,7 +93,7 @@ const Juntarpdf = () => {
                 </div>
                 {/* Mostrar os arquivos PDFs em cards */}
                 <div className='file-list'>
-                    <h3>Arquivos selecionados</h3>
+                    <h3 className='file-list-title'>Arquivos selecionados</h3>
                     <div className='content-arquivos-selecionados'>
                         {pdfFiles.map((file, index) => (
                             <FileCard
