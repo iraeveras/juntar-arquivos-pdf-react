@@ -65,7 +65,7 @@ const Juntarpdf = () => {
         <DndProvider backend={HTML5Backend}>
             <div className='container'>
                 <div className='content'>
-                    <h1>Combinar PDF</h1>
+                    <h1>Juntar PDF</h1>
 
                     {/* Área de Drag-and-Drop */}
                     <div {...getRootProps({ className: "dropzone" })}>
